@@ -6,8 +6,19 @@ const router = express.Router();
 
 router.get('/', auth, async (req, res) => {
   try {
-    const items = await Portfolio.findAll({ where: { userId: req.userId }, order: [['totalInvested', 'DESC']] });
-    res.json(items);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+    const sortField = ['totalInvested', 'cryptocurrency', 'currentValue', 'createdAt'].includes(req.query.sortBy)
+      ? req.query.sortBy : 'totalInvested';
+    const sortOrder = req.query.sortOrder === 'ASC' ? 'ASC' : 'DESC';
+    const { count, rows } = await Portfolio.findAndCountAll({
+      where: { userId: req.userId },
+      order: [[sortField, sortOrder]],
+      limit,
+      offset,
+    });
+    res.json({ data: rows, pagination: { page, limit, total: count, totalPages: Math.ceil(count / limit) } });
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiHome, FiRepeat, FiPieChart, FiFileText, FiCpu, FiLayers, FiImage, FiTrendingDown, FiShield, FiGlobe, FiCheckCircle, FiZap } from 'react-icons/fi';
+import { FiHome, FiRepeat, FiPieChart, FiFileText, FiCpu, FiLayers, FiImage, FiTrendingDown, FiShield, FiGlobe, FiCheckCircle, FiZap, FiAward } from 'react-icons/fi';
 
 const navItems = [
   { section: 'Overview', items: [
@@ -24,7 +24,22 @@ const navItems = [
   ]},
   { section: 'AI Intelligence', items: [
     { id: 'ai-center', label: 'AI Center', icon: <FiZap />, path: '/ai-center' },
+    { id: 'ai-advanced', label: 'AI Advanced', icon: <FiAward />, path: '/ai-advanced' },
   ]},
+,
+  // // === Batch 02 Gaps & Frontend Mounts ===
+  { path: '/cf/tax-optimization-engine', icon: '+', label: 'CF: TaxOptimizationEngine' },
+  { path: '/cf/predictive-tax-liability-forecasting', icon: '+', label: 'CF: PredictiveTaxLiabilityFo' },
+  { path: '/cf/defi-tax-automation', icon: '+', label: 'CF: DefiTaxAutomation' },
+  { path: '/cf/regulatory-scenario-modeling', icon: '+', label: 'CF: RegulatoryScenarioModeli' },
+  { path: '/cf/multi-jurisdiction-tax-optimization', icon: '+', label: 'CF: MultiJurisdictionTaxOpti' },
+  { path: '/gap/missing-analyze-crypto-tax-strategy-optimize-tax-loss-harves', icon: '+', label: 'Gap: MissingAnalyzeCryptoTaxS' },
+  { path: '/gap/limited-exchange-api-integrations-no-coinbase-kraken-binance', icon: '+', label: 'Gap: LimitedExchangeApiIntegr' },
+  { path: '/gap/no-real-time-price-feed-integration', icon: '+', label: 'Gap: NoRealTimePriceFeedInteg' },
+  { path: '/gap/no-cpa-accountant-review-workflow', icon: '+', label: 'Gap: NoCpaAccountantReviewWor' },
+  { path: '/gap/no-wallet-private-key-security-module', icon: '+', label: 'Gap: NoWalletPrivateKeySecuri' },
+  { path: '/gap/no-webhooks', icon: '+', label: 'Gap: NoWebhooks' },
+  { path: '/gap/no-search-across-transactions-surface', icon: '+', label: 'Gap: NoSearchAcrossTransactio' }
 ];
 
 export default function Sidebar({ user, activeNav, setActiveNav, onLogout }) {
