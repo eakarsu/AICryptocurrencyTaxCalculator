@@ -14,6 +14,22 @@ import AuditPage from './pages/AuditPage';
 import CrossBorderPage from './pages/CrossBorderPage';
 import CompliancePage from './pages/CompliancePage';
 import AICenterPage from './pages/AICenterPage';
+import AIAdvancedPage from './pages/AIAdvancedPage';
+import CustomViewsPage from './pages/CustomViewsPage';
+
+// // === Batch 02 Gaps & Frontend Mounts ===
+import CfTaxOptimizationEngine from './pages/CfTaxOptimizationEngine';
+import CfPredictiveTaxLiabilityForecasting from './pages/CfPredictiveTaxLiabilityForecasting';
+import CfDefiTaxAutomation from './pages/CfDefiTaxAutomation';
+import CfRegulatoryScenarioModeling from './pages/CfRegulatoryScenarioModeling';
+import CfMultiJurisdictionTaxOptimization from './pages/CfMultiJurisdictionTaxOptimization';
+import GapMissingAnalyzeCryptoTaxStrategyOptimizeTaxLossHarves from './pages/GapMissingAnalyzeCryptoTaxStrategyOptimizeTaxLossHarves';
+import GapLimitedExchangeApiIntegrationsNoCoinbaseKrakenBinance from './pages/GapLimitedExchangeApiIntegrationsNoCoinbaseKrakenBinance';
+import GapNoRealTimePriceFeedIntegration from './pages/GapNoRealTimePriceFeedIntegration';
+import GapNoCpaAccountantReviewWorkflow from './pages/GapNoCpaAccountantReviewWorkflow';
+import GapNoWalletPrivateKeySecurityModule from './pages/GapNoWalletPrivateKeySecurityModule';
+import GapNoWebhooks from './pages/GapNoWebhooks';
+import GapNoSearchAcrossTransactionsSurface from './pages/GapNoSearchAcrossTransactionsSurface';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,7 +56,21 @@ function App() {
       <Router>
         <Routes>
           <Route path="*" element={<Login onLogin={handleLogin} />} />
-        </Routes>
+        
+        {/* // === Batch 02 Gaps & Frontend Mounts === */}
+        <Route path="/cf/tax-optimization-engine" element={<CfTaxOptimizationEngine />} />
+        <Route path="/cf/predictive-tax-liability-forecasting" element={<CfPredictiveTaxLiabilityForecasting />} />
+        <Route path="/cf/defi-tax-automation" element={<CfDefiTaxAutomation />} />
+        <Route path="/cf/regulatory-scenario-modeling" element={<CfRegulatoryScenarioModeling />} />
+        <Route path="/cf/multi-jurisdiction-tax-optimization" element={<CfMultiJurisdictionTaxOptimization />} />
+        <Route path="/gap/missing-analyze-crypto-tax-strategy-optimize-tax-loss-harves" element={<GapMissingAnalyzeCryptoTaxStrategyOptimizeTaxLossHarves />} />
+        <Route path="/gap/limited-exchange-api-integrations-no-coinbase-kraken-binance" element={<GapLimitedExchangeApiIntegrationsNoCoinbaseKrakenBinance />} />
+        <Route path="/gap/no-real-time-price-feed-integration" element={<GapNoRealTimePriceFeedIntegration />} />
+        <Route path="/gap/no-cpa-accountant-review-workflow" element={<GapNoCpaAccountantReviewWorkflow />} />
+        <Route path="/gap/no-wallet-private-key-security-module" element={<GapNoWalletPrivateKeySecurityModule />} />
+        <Route path="/gap/no-webhooks" element={<GapNoWebhooks />} />
+        <Route path="/gap/no-search-across-transactions-surface" element={<GapNoSearchAcrossTransactionsSurface />} />
+      </Routes>
       </Router>
     );
   }
@@ -63,6 +93,8 @@ function App() {
             <Route path="/cross-border" element={<CrossBorderPage />} />
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/ai-center" element={<AICenterPage />} />
+            <Route path="/ai-advanced" element={<AIAdvancedPage />} />
+            <Route path="/custom-views" element={<CustomViewsPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

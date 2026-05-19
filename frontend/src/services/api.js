@@ -123,7 +123,18 @@ export const aiCenter = {
   portfolioTaxRisk: () => API.post('/ai/portfolio-tax-risk'),
   regulatoryUpdates: () => API.post('/ai/regulatory-updates'),
   fullSummary: () => API.post('/ai/full-summary'),
-  chatHistory: () => API.get('/ai/chat-history'),
+  chatHistory: (params) => API.get('/ai/chat-history', { params }),
+  // New AI features
+  taxBracketForecaster: (data) => API.post('/ai/tax-bracket-forecaster', data),
+  donationOptimizer: (data) => API.post('/ai/donation-optimizer', data),
+  auditDefense: (data) => API.post('/ai/audit-defense', data),
+  internationalTax: (data) => API.post('/ai/international-tax', data),
+  earnedIncomeSplit: (data) => API.post('/ai/earned-income-split', data),
+  stakingRewardAutomator: (data) => API.post('/ai/staking-reward-automator', data),
+  carbonOffsetTaxCredit: (data) => API.post('/ai/carbon-offset-tax-credit', data),
+  rothConversionSimulator: (data) => API.post('/ai/roth-conversion-simulator', data),
+  autoCategorizeTransactions: (data) => API.post('/ai/auto-categorize-transactions', data),
+  analyzeDefiTaxImplications: (data) => API.post('/ai/analyze-defi-tax-implications', data),
 };
 
 export default API;

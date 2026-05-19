@@ -16,7 +16,11 @@ const Transaction = sequelize.define('Transaction', {
   date: { type: DataTypes.DATE, allowNull: false },
   notes: { type: DataTypes.TEXT },
   category: { type: DataTypes.STRING },
-  taxYear: { type: DataTypes.INTEGER, field: 'tax_year' }
+  taxYear: { type: DataTypes.INTEGER, field: 'tax_year' },
+  // Compliance flags
+  washSaleFlagged: { type: DataTypes.BOOLEAN, defaultValue: false, field: 'wash_sale_flagged' },
+  highGainFlagged: { type: DataTypes.BOOLEAN, defaultValue: false, field: 'high_gain_flagged' },
+  flagReasons: { type: DataTypes.JSONB, defaultValue: [], field: 'flag_reasons' },
 }, { tableName: 'transactions', timestamps: true });
 
 module.exports = Transaction;

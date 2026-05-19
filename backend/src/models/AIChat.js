@@ -8,7 +8,8 @@ const AIChat = sequelize.define('AIChat', {
   role: { type: DataTypes.ENUM('user', 'assistant'), allowNull: false },
   message: { type: DataTypes.TEXT, allowNull: false },
   feature: { type: DataTypes.STRING, defaultValue: 'general' },
-  tokens: { type: DataTypes.INTEGER, defaultValue: 0 }
+  tokens: { type: DataTypes.INTEGER, defaultValue: 0 },
+  ai_results: { type: DataTypes.JSONB, allowNull: true, field: 'ai_results' }
 }, { tableName: 'ai_chats', timestamps: true });
 
 module.exports = AIChat;
