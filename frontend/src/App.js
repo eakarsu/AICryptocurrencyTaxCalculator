@@ -15,6 +15,7 @@ import CrossBorderPage from './pages/CrossBorderPage';
 import CompliancePage from './pages/CompliancePage';
 import AICenterPage from './pages/AICenterPage';
 import AIAdvancedPage from './pages/AIAdvancedPage';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfTaxOptimizationEngine from './pages/CfTaxOptimizationEngine';
@@ -93,6 +94,7 @@ function App() {
             <Route path="/compliance" element={<CompliancePage />} />
             <Route path="/ai-center" element={<AICenterPage />} />
             <Route path="/ai-advanced" element={<AIAdvancedPage />} />
+            <Route path="/custom-views" element={<CustomViewsPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

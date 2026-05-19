@@ -84,6 +84,10 @@ app.use('/api/ai', require('./routes/regulatoryScenario'));
 app.use('/api/ai', require('./routes/defiAutomation'));
 app.use('/api/ai', require('./routes/liabilityForecast'));
 app.use('/api/ai', require('./routes/taxOptimization'));
+
+// === Custom Views (4 new features: 2 VIZ + 2 NON-VIZ) ===
+app.use('/api/custom-views', require('./routes/customViews'));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

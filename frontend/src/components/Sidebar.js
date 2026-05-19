@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiHome, FiRepeat, FiPieChart, FiFileText, FiCpu, FiLayers, FiImage, FiTrendingDown, FiShield, FiGlobe, FiCheckCircle, FiZap, FiAward } from 'react-icons/fi';
+import { FiHome, FiRepeat, FiPieChart, FiFileText, FiCpu, FiLayers, FiImage, FiTrendingDown, FiShield, FiGlobe, FiCheckCircle, FiZap, FiAward, FiBarChart2 } from 'react-icons/fi';
 
 const navItems = [
   { section: 'Overview', items: [
@@ -25,6 +25,9 @@ const navItems = [
   { section: 'AI Intelligence', items: [
     { id: 'ai-center', label: 'AI Center', icon: <FiZap />, path: '/ai-center' },
     { id: 'ai-advanced', label: 'AI Advanced', icon: <FiAward />, path: '/ai-advanced' },
+  ]},
+  { section: 'Custom Views', items: [
+    { id: 'custom-views', label: 'Tax Views', icon: <FiBarChart2 />, path: '/custom-views' },
   ]},
 ,
   // // === Batch 02 Gaps & Frontend Mounts ===
@@ -52,7 +55,7 @@ export default function Sidebar({ user, activeNav, setActiveNav, onLogout }) {
         <p>Intelligent Tax Calculator</p>
       </div>
       <div className="sidebar-nav">
-        {navItems.map((section) => (
+        {navItems.filter((s) => s && Array.isArray(s.items)).map((section) => (
           <div key={section.section} className="nav-section">
             <div className="nav-section-title">{section.section}</div>
             {section.items.map((item) => (
