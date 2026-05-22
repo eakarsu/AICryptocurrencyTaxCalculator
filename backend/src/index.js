@@ -87,6 +87,7 @@ app.use('/api/ai', require('./routes/taxOptimization'));
 
 // === Custom Views (4 new features: 2 VIZ + 2 NON-VIZ) ===
 app.use('/api/custom-views', require('./routes/customViews'));
+app.use('/api/wash-sale-exposure', require('./routes/washSaleExposure'));
 
 // Health check
 app.get('/api/health', (req, res) => {

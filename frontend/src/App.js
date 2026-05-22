@@ -16,6 +16,7 @@ import CompliancePage from './pages/CompliancePage';
 import AICenterPage from './pages/AICenterPage';
 import AIAdvancedPage from './pages/AIAdvancedPage';
 import CustomViewsPage from './pages/CustomViewsPage';
+import WashSaleExposurePage from './pages/WashSaleExposurePage';
 
 // // === Batch 02 Gaps & Frontend Mounts ===
 import CfTaxOptimizationEngine from './pages/CfTaxOptimizationEngine';
@@ -30,6 +31,11 @@ import GapNoCpaAccountantReviewWorkflow from './pages/GapNoCpaAccountantReviewWo
 import GapNoWalletPrivateKeySecurityModule from './pages/GapNoWalletPrivateKeySecurityModule';
 import GapNoWebhooks from './pages/GapNoWebhooks';
 import GapNoSearchAcrossTransactionsSurface from './pages/GapNoSearchAcrossTransactionsSurface';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -55,6 +61,10 @@ function App() {
     return (
       <Router>
         <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
           <Route path="*" element={<Login onLogin={handleLogin} />} />
         
         {/* // === Batch 02 Gaps & Frontend Mounts === */}
@@ -95,6 +105,7 @@ function App() {
             <Route path="/ai-center" element={<AICenterPage />} />
             <Route path="/ai-advanced" element={<AIAdvancedPage />} />
             <Route path="/custom-views" element={<CustomViewsPage />} />
+            <Route path="/wash-sale-exposure" element={<WashSaleExposurePage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
