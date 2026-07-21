@@ -22,10 +22,7 @@ function getKey() {
 function encrypt(plaintext) {
   if (!plaintext) return plaintext;
   const key = getKey();
-  if (!key) {
-    console.warn('[encryption] ENCRYPTION_KEY not set — skipping field encryption');
-    return plaintext;
-  }
+  if (!key) throw new Error('ENCRYPTION_KEY is required; refusing to persist plaintext financial data');
 
   const iv = crypto.randomBytes(12); // 96-bit IV recommended for GCM
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
@@ -43,10 +40,7 @@ function encrypt(plaintext) {
 function decrypt(value) {
   if (!value || !String(value).startsWith('enc:')) return value;
   const key = getKey();
-  if (!key) {
-    console.warn('[encryption] ENCRYPTION_KEY not set — cannot decrypt field');
-    return value;
-  }
+  if (!key) throw new Error('ENCRYPTION_KEY is required to decrypt financial data');
 
   try {
     const parts = String(value).split(':');

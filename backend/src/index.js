@@ -12,8 +12,13 @@ if (!process.env.DATABASE_URL) {
 if (!process.env.OPENROUTER_API_KEY) {
   console.warn('[WARN] OPENROUTER_API_KEY is not set. AI features will not function correctly.');
 }
-if (!process.env.JWT_SECRET) {
-  console.warn('[WARN] JWT_SECRET is not set. Using insecure default — set this in production!');
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  console.error('[FATAL] JWT_SECRET must contain at least 32 characters. Refusing to start.');
+  process.exit(1);
+}
+if (!process.env.ENCRYPTION_KEY || process.env.ENCRYPTION_KEY.length < 32) {
+  console.error('[FATAL] ENCRYPTION_KEY must contain at least 32 characters. Refusing to start.');
+  process.exit(1);
 }
 
 const sequelize = require('./config/database');
@@ -71,6 +76,7 @@ app.use('/api/tax-loss-harvest', taxLossHarvestRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/cross-border', crossBorderRoutes);
 app.use('/api/compliance', complianceRoutes);
+app.use('/api/governed-tax-runs', require('./routes/governedTaxRuns'));
 app.use('/api/ai', aiCenterRoutes);
 app.use('/api/ai', aiNewRoutes);
 
@@ -118,26 +124,7 @@ async function start() {
     await sequelize.sync({ alter: false });
     logger.info('Models synced.');
     await ensureAiChatsAiResults();
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-missing-analyze-crypto-tax-strategy-optimize-tax-loss-harves', require('./routes/gap_missing_analyze_crypto_tax_strategy_optimize_tax_loss_harves'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-limited-exchange-api-integrations-no-coinbase-kraken-binance', require('./routes/gap_limited_exchange_api_integrations_no_coinbase_kraken_binance'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-real-time-price-feed-integration', require('./routes/gap_no_real_time_price_feed_integration'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-cpa-accountant-review-workflow', require('./routes/gap_no_cpa_accountant_review_workflow'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-wallet-private-key-security-module', require('./routes/gap_no_wallet_private_key_security_module'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-webhooks', require('./routes/gap_no_webhooks'));
-
-// // === Batch 02 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-search-across-transactions-surface', require('./routes/gap_no_search_across_transactions_surface'));
+// Generated gap routers are deliberately quarantined and are not mounted.
 
     app.listen(PORT, () => {
       logger.info(`Backend running on port ${PORT}`);
