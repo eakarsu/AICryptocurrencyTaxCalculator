@@ -1,5 +1,11 @@
 const { sequelize, User, Transaction, Portfolio, TaxReport, MiningStaking, DeFiActivity, NFTTransaction, TaxLossHarvest, AuditLog, CrossBorderTax, ComplianceCheck } = require('../models');
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_PASSWORD || process.env.SEED_DEMO_PASSWORD || process.env.DEMO_SEED_PASSWORD || '';
+  if (password.length < 12 || password.length > 1024) throw new Error('DEMO_PASSWORD must contain 12-1024 characters');
+  return password;
+}
+
 async function seed() {
   try {
     await sequelize.sync({ force: true });
@@ -8,7 +14,7 @@ async function seed() {
     // Create demo user
     const user = await User.create({
       email: 'demo@cryptotax.com',
-      password: 'password123',
+      password: requireDemoPassword(),
       name: 'Demo User'
     });
     console.log('Demo user created.');
@@ -217,7 +223,7 @@ async function seed() {
     console.log('Compliance checks seeded.');
 
     console.log('\nAll seed data created successfully!');
-    console.log('Demo credentials: demo@cryptotax.com / password123');
+    console.log('Demo login users provisioned from the local environment.');
     process.exit(0);
   } catch (error) {
     console.error('Seed error:', error);
