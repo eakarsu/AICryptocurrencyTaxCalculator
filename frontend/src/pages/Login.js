@@ -52,7 +52,7 @@ export default function Login({ onLogin }) {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
             <button type="button" className="demo-btn" onClick={fillDemo}>
-              Use Demo Credentials
+              Auto Fill Demo Credentials
             </button>
           </form>
         </div>
