@@ -1,3 +1,4 @@
+import AIReportLibrary from "./AIReportLibrary";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiHome, FiRepeat, FiPieChart, FiFileText, FiCpu, FiLayers, FiImage, FiTrendingDown, FiShield, FiGlobe, FiCheckCircle, FiZap, FiAward, FiBarChart2 } from 'react-icons/fi';
@@ -81,6 +82,6 @@ export default function Sidebar({ user, activeNav, setActiveNav, onLogout }) {
         </div>
         <button className="logout-btn" onClick={onLogout}>Sign Out</button>
       </div>
-    </div>
+    <AIReportLibrary /></div>
   );
 }

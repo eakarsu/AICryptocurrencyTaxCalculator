@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { aiCenter } from '../services/api';
-import AIResponseDisplay from '../components/AIResponseDisplay';
+import AIFieldPresets, { completeExample } from './AIFieldPresets';
+import AIResultView from './AIResultView';
+import React, { useEffect, useState } from 'react';
+import { aiCenter, transactions } from '../services/api';
 import { FiActivity, FiGift, FiShield, FiGlobe, FiBriefcase, FiZap, FiCloud, FiPieChart, FiPlay, FiTag, FiLayers } from 'react-icons/fi';
 
 const FEATURES = [
@@ -130,6 +131,72 @@ const FEATURES = [
   },
 ];
 
+const FEATURE_EXAMPLES = {
+  'tax-bracket-forecaster': [
+    { ytd_gains: 18500, ytd_losses: 3200, income: 92000, filing_status: 'single' },
+    { ytd_gains: 42000, ytd_losses: 11800, income: 165000, filing_status: 'married_filing_jointly' },
+    { ytd_gains: 7800, ytd_losses: 12600, income: 71000, filing_status: 'head_of_household' },
+  ],
+  'donation-optimizer': [
+    { portfolio: [{ asset: 'BTC', amount: 0.4, costBasis: 8400, currentValue: 26000 }], charity_goals: ['education', 'food security'] },
+    { portfolio: [{ asset: 'ETH', amount: 3, costBasis: 4800, currentValue: 10200 }], charity_goals: ['climate resilience'] },
+    { portfolio: [{ asset: 'SOL', amount: 40, costBasis: 2400, currentValue: 7200 }], charity_goals: ['community health', 'arts'] },
+  ],
+  'audit-defense': [{}, {}, {}],
+  'international-tax': [
+    { countries: ['United States', 'Germany'], crypto_holdings: [{ asset: 'BTC', amount: 0.5, value_usd: 32500 }] },
+    { countries: ['United States', 'Canada'], crypto_holdings: [{ asset: 'ETH', amount: 4, value_usd: 13600 }] },
+    { countries: ['United States', 'Japan'], crypto_holdings: [{ asset: 'SOL', amount: 75, value_usd: 13500 }] },
+  ],
+  'earned-income-split': [
+    { annual_trades: 480, gross_revenue: 125000, hours_per_week: 28, home_office_pct: 12, equipment_costs: 6800 },
+    { annual_trades: 1200, gross_revenue: 310000, hours_per_week: 45, home_office_pct: 18, equipment_costs: 14200 },
+    { annual_trades: 160, gross_revenue: 62000, hours_per_week: 12, home_office_pct: 8, equipment_costs: 3200 },
+  ],
+  'staking-reward-automator': [
+    { protocols: ['Ethereum', 'Solana'] },
+    { protocols: ['Cardano', 'Polkadot'] },
+    { protocols: ['Cosmos', 'Avalanche'] },
+  ],
+  'carbon-offset-tax-credit': [
+    { mining_kwh_year: 180000, mining_revenue_year: 95000, renewable_pct: 35, carbon_credits_purchased_usd: 4200, state: 'Texas' },
+    { mining_kwh_year: 420000, mining_revenue_year: 240000, renewable_pct: 68, carbon_credits_purchased_usd: 12500, state: 'New York' },
+    { mining_kwh_year: 90000, mining_revenue_year: 56000, renewable_pct: 92, carbon_credits_purchased_usd: 1800, state: 'Oregon' },
+  ],
+  'roth-conversion-simulator': [
+    { traditional_ira_balance: 420000, current_age: 42, annual_income: 145000, filing_status: 'single', crypto_unrealized_gains_usd: 78000, conversion_amount_per_year: 35000, years_to_convert: 8 },
+    { traditional_ira_balance: 780000, current_age: 55, annual_income: 210000, filing_status: 'married_filing_jointly', crypto_unrealized_gains_usd: 165000, conversion_amount_per_year: 60000, years_to_convert: 10 },
+    { traditional_ira_balance: 265000, current_age: 34, annual_income: 98000, filing_status: 'head_of_household', crypto_unrealized_gains_usd: 42000, conversion_amount_per_year: 25000, years_to_convert: 6 },
+  ],
+  'auto-categorize-transactions': [
+    { transactions: [{ hash: '0xabc123', asset: 'ETH', amount: 1.5, counterparty: 'Uniswap', memo: 'swap ETH for USDC' }] },
+    { transactions: [{ hash: '0xdef456', asset: 'SOL', amount: 12, counterparty: 'Phantom', memo: 'staking reward' }] },
+    { transactions: [{ hash: '0x987fed', asset: 'BTC', amount: 0.08, counterparty: 'Coinbase', memo: 'sale for USD' }] },
+  ],
+  'analyze-defi-tax-implications': [
+    { protocol: 'Aave', position_type: 'lending', asset: 'USDC', amount_usd: 25000, duration_days: 180, rewards_received_usd: 860 },
+    { protocol: 'Uniswap V3', position_type: 'lp', asset: 'ETH-USDC', amount_usd: 42000, duration_days: 95, rewards_received_usd: 2100 },
+    { protocol: 'Lido', position_type: 'staking', asset: 'ETH', amount_usd: 18000, duration_days: 365, rewards_received_usd: 920 },
+  ],
+};
+
+const examplesFor = (feature) => (FEATURE_EXAMPLES[feature.id] || [{}, {}, {}]).map((values, index) => ({
+  label: ['Conservative example', 'Growth example', 'Detailed example'][index],
+  values,
+}));
+
+const REQUIRED_FIELDS = {
+  'tax-bracket-forecaster': ['ytd_gains', 'ytd_losses', 'income', 'filing_status'],
+  'donation-optimizer': ['portfolio', 'charity_goals'],
+  'audit-defense': ['transaction_id'],
+  'international-tax': ['countries', 'crypto_holdings'],
+  'earned-income-split': ['annual_trades', 'gross_revenue', 'hours_per_week'],
+  'roth-conversion-simulator': ['traditional_ira_balance', 'current_age', 'annual_income', 'filing_status', 'conversion_amount_per_year', 'years_to_convert'],
+  'auto-categorize-transactions': ['transactions'],
+  'analyze-defi-tax-implications': ['protocol', 'position_type', 'asset', 'amount_usd'],
+};
+const isRequired = (featureId, key) => (REQUIRED_FIELDS[featureId] || []).includes(key);
+
 function parseField(field, raw) {
   if (raw === '' || raw == null) return undefined;
   if (field.type === 'number') {
@@ -147,12 +214,34 @@ function parseField(field, raw) {
 }
 
 export default function AIAdvancedPage() {
+  const [transactionRows, setTransactionRows] = useState([]);
+  const [savedResults, setSavedResults] = useState([]);
+  useEffect(() => {
+    let active = true;
+    Promise.allSettled([transactions.getAll(), aiCenter.chatHistory({ page: 1, limit: 100 })]).then(([transactionResponse, historyResponse]) => {
+      if (!active) return;
+      if (transactionResponse.status === 'fulfilled') {
+        const data = transactionResponse.value.data ?? transactionResponse.value;
+        setTransactionRows(Array.isArray(data) ? data : data.data || data.records || []);
+      }
+      if (historyResponse.status === 'fulfilled') {
+        const rows = historyResponse.value.data?.data || [];
+        setSavedResults(rows.filter((item) => item.role === 'assistant'));
+      }
+    });
+    return () => { active = false; };
+  }, []);
   const [active, setActive] = useState(FEATURES[0].id);
   const [formState, setFormState] = useState({});
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState({});
 
   const feature = FEATURES.find(f => f.id === active);
+
+  const fieldsFor = (selected) => selected.fields.map(field => field.key === 'transaction_id' ? { ...field, type: 'select', requiresExistingRecord: true, options: transactionRows.map(row => ({ value: String(row.id), label: row.hash || row.asset || `Transaction #${row.id}` })) } : field);
+  const presetFields = fieldsFor(feature);
+  const fillExample = (selected, sample, index = 0) => { setFormState(current => ({ ...current, [selected.id]: completeExample(fieldsFor(selected), sample, index, selected.title, current[selected.id] || {}) })); setResults(current => ({ ...current, [selected.id]: null })); };
+  const missingReference = presetFields.some(field => field.requiresExistingRecord && !formState[feature.id]?.[field.key]);
 
   const handleChange = (fid, key, val) => {
     setFormState(prev => ({ ...prev, [fid]: { ...(prev[fid] || {}), [key]: val } }));
@@ -170,6 +259,10 @@ export default function AIAdvancedPage() {
       }
       const res = await aiCenter[feature.action](payload);
       setResults(p => ({ ...p, [fid]: res.data }));
+      aiCenter.chatHistory({ page: 1, limit: 100 }).then((history) => {
+        const rows = history.data?.data || [];
+        setSavedResults(rows.filter((item) => item.role === 'assistant'));
+      }).catch(() => {});
     } catch (err) {
       setResults(p => ({ ...p, [fid]: { error: err.response?.data?.error || err.message, details: err.response?.data?.details } }));
     } finally {
@@ -178,6 +271,7 @@ export default function AIAdvancedPage() {
   };
 
   const result = results[feature.id];
+  const savedForFeature = savedResults.filter((item) => item.feature === feature.id.replace(/-/g, '_'));
 
   return (
     <div>
@@ -191,7 +285,7 @@ export default function AIAdvancedPage() {
           <div
             key={f.id}
             className={`ai-feature-card ${active === f.id ? 'active' : ''}`}
-            onClick={() => setActive(f.id)}
+            onClick={() => { setActive(f.id); fillExample(f, examplesFor(f)[0], 0); }}
             style={{ cursor: 'pointer', borderColor: active === f.id ? '#8b5cf6' : undefined }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
@@ -206,31 +300,35 @@ export default function AIAdvancedPage() {
       <div style={{ marginTop: 24, padding: 20, border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8 }}>
         <h3>{feature.title}</h3>
         <p style={{ color: '#94a3b8', marginBottom: 16 }}>{feature.desc}</p>
+        <AIFieldPresets fields={presetFields} samples={examplesFor(feature)} disabled={loading[feature.id]} context={feature.title} onFill={(sample, index) => fillExample(feature, sample, index)} />
+        {missingReference && <p role="status">Choose an actual transaction from your account before generating an audit-defense narrative. Examples never invent transaction IDs.</p>}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
-          {feature.fields.map(field => (
+          {presetFields.map(field => (
             <div key={field.key} className="form-group">
-              <label style={{ display: 'block', marginBottom: 4, fontSize: 13 }}>{field.label}</label>
+              <label style={{ display: 'block', marginBottom: 4, fontSize: 13 }}>
+                {field.label} <small style={{ color: '#94a3b8' }}>{isRequired(feature.id, field.key) ? 'Required' : 'Optional'}</small>
+              </label>
               {field.type === 'select' ? (
                 <select
-                  value={(formState[feature.id] || {})[field.key] || ''}
+                  value={(formState[feature.id] || {})[field.key] ?? ''}
                   onChange={(e) => handleChange(feature.id, field.key, e.target.value)}
                   style={{ width: '100%', padding: 8, background: 'rgba(15,23,42,0.5)', color: '#e2e8f0', border: '1px solid #334155', borderRadius: 4 }}
                 >
                   <option value="">Select...</option>
-                  {field.options.map(o => <option key={o} value={o}>{o}</option>)}
+                  {field.options.map(option => <option key={typeof option === 'object' ? option.value : option} value={typeof option === 'object' ? option.value : option}>{typeof option === 'object' ? option.label : option}</option>)}
                 </select>
               ) : field.type === 'json' ? (
                 <textarea
                   rows={3}
                   placeholder={field.placeholder}
-                  value={(formState[feature.id] || {})[field.key] || ''}
+                  value={(formState[feature.id] || {})[field.key] ?? ''}
                   onChange={(e) => handleChange(feature.id, field.key, e.target.value)}
                   style={{ width: '100%', padding: 8, background: 'rgba(15,23,42,0.5)', color: '#e2e8f0', border: '1px solid #334155', borderRadius: 4, fontFamily: 'monospace', fontSize: 12 }}
                 />
               ) : (
                 <input
                   type={field.type === 'number' ? 'number' : 'text'}
-                  value={(formState[feature.id] || {})[field.key] || ''}
+                  value={(formState[feature.id] || {})[field.key] ?? ''}
                   onChange={(e) => handleChange(feature.id, field.key, e.target.value)}
                   style={{ width: '100%', padding: 8, background: 'rgba(15,23,42,0.5)', color: '#e2e8f0', border: '1px solid #334155', borderRadius: 4 }}
                 />
@@ -242,36 +340,47 @@ export default function AIAdvancedPage() {
           className="btn btn-ai"
           style={{ marginTop: 16 }}
           onClick={handleRun}
-          disabled={loading[feature.id]}
+          disabled={loading[feature.id] || missingReference}
         >
           <FiPlay /> {loading[feature.id] ? 'Running...' : 'Run AI Analysis'}
         </button>
       </div>
 
       {result && result.error && (
-        <div style={{ marginTop: 16, padding: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', borderRadius: 4, color: '#fca5a5' }}>
-          <strong>Error:</strong> {result.error}
-          {result.details && <pre style={{ marginTop: 8, fontSize: 11 }}>{JSON.stringify(result.details, null, 2)}</pre>}
-        </div>
+        <AIResultView
+          response={result.details}
+          error={result.error}
+          title={`${feature.title} error`}
+          label="Request error"
+        />
       )}
 
       {result && !result.error && (
-        <div style={{ marginTop: 16 }}>
-          <AIResponseDisplay
-            content={result.raw || result.analysis || result.auditDefensePackage || ''}
-            model={result.model}
-            usage={result.usage}
-            title={feature.title}
-          />
-          {result.parsed || (typeof result.analysis === 'object' && result.analysis) ? (
-            <div style={{ marginTop: 12, padding: 12, background: 'rgba(15,23,42,0.5)', borderRadius: 4 }}>
-              <h4 style={{ marginBottom: 8 }}>Structured JSON Result</h4>
-              <pre style={{ fontSize: 11, overflowX: 'auto', color: '#cbd5e1' }}>
-                {JSON.stringify(result.parsed || result.analysis, null, 2)}
-              </pre>
-            </div>
-          ) : null}
-        </div>
+        <AIResultView
+          response={result.parsed || result.analysis || result.auditDefensePackage || result}
+          model={result.model}
+          tokens={result.usage}
+          title={feature.title}
+          label="AI analysis"
+        />
+      )}
+
+      {savedForFeature.length > 0 && (
+        <section className="ai-history" aria-label={`Saved ${feature.title} results`}>
+          <h2>Saved results</h2>
+          <p className="ai-muted">Previously saved responses use the same readable sections, lists, and tables.</p>
+          {savedForFeature.slice(0, 5).map((item) => (
+            <details key={item.id} className="ai-history-row">
+              <summary>{new Date(item.createdAt || item.created_at).toLocaleString()}</summary>
+              <AIResultView
+                response={item.ai_results || item.message}
+                tokens={item.tokens}
+                title={feature.title}
+                label="Saved AI result"
+              />
+            </details>
+          ))}
+        </section>
       )}
     </div>
   );

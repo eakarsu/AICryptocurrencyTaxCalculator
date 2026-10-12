@@ -1,3 +1,4 @@
+import RecordDialog from './RecordDialog';
 import React, { useState, useEffect, useCallback } from 'react';
 import DataTable from '../components/DataTable';
 import DetailView from '../components/DetailView';
@@ -114,7 +115,7 @@ export default function CrudPage({ title, subtitle, api, columns, detailFields, 
 
       {selected ? (
         <>
-          <DetailView
+          <RecordDialog title={title} onClose={() => setSelected(null)}><DetailView
             title={title}
             fields={detailFields}
             data={selected}
@@ -123,7 +124,7 @@ export default function CrudPage({ title, subtitle, api, columns, detailFields, 
             onClose={() => setSelected(null)}
             onAiAnalyze={aiAction ? handleItemAiAnalyze : undefined}
             aiLoading={aiLoading}
-          />
+          /></RecordDialog>
         </>
       ) : (
         <DataTable

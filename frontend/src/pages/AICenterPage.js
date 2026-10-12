@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import NativeAIControls from "../components/NativeAIControls.jsx";
+import React, { useCallback, useEffect, useState } from 'react';
 import { aiCenter } from '../services/api';
-import AIResponseDisplay from '../components/AIResponseDisplay';
-import ReactMarkdown from 'react-markdown';
+import AIResultView, { AIResultValue, reportValue } from './AIResultView';
 import { FiSend, FiZap, FiTrendingUp, FiDollarSign, FiAlertTriangle, FiBarChart2, FiBookOpen, FiClipboard } from 'react-icons/fi';
 
 const aiFeatures = [
@@ -21,6 +21,20 @@ export default function AICenterPage() {
   const [featureResult, setFeatureResult] = useState(null);
   const [featureLoading, setFeatureLoading] = useState('');
   const [activeTab, setActiveTab] = useState('chat');
+  const [savedResults, setSavedResults] = useState([]);
+  const [savedResult, setSavedResult] = useState(null);
+
+  const loadSavedResults = useCallback(async () => {
+    try {
+      const response = await aiCenter.chatHistory({ page: 1, limit: 50 });
+      const rows = response.data?.data || [];
+      setSavedResults(rows.filter((item) => item.role === 'assistant'));
+    } catch (_) {
+      setSavedResults([]);
+    }
+  }, []);
+
+  useEffect(() => { loadSavedResults(); }, [loadSavedResults]);
 
   const handleSendChat = async (e) => {
     e.preventDefault();
@@ -35,6 +49,7 @@ export default function AICenterPage() {
       const res = await aiCenter.chat({ message: userMsg, sessionId, feature: 'general' });
       setSessionId(res.data.sessionId);
       setChatMessages(prev => [...prev, { role: 'assistant', content: res.data.response, model: res.data.model, usage: res.data.usage }]);
+      loadSavedResults();
     } catch (err) {
       setChatMessages(prev => [...prev, { role: 'assistant', content: 'Error: ' + (err.response?.data?.error || err.message) }]);
     }
@@ -55,7 +70,7 @@ export default function AICenterPage() {
   };
 
   return (
-    <div>
+    <NativeAIControls busy={false} context="CryptocurrencyTaxCalculator"><div>
       <div className="page-header">
         <h2>AI Command Center</h2>
         <p>All AI-powered crypto tax features in one place</p>
@@ -95,7 +110,7 @@ export default function AICenterPage() {
                 <div className={`chat-bubble ${msg.role === 'user' ? 'user' : 'ai'}`}>
                   {msg.role === 'assistant' ? (
                     <div className="ai-response-content">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <AIResultValue value={reportValue(msg.content)} />
                       {msg.model && (
                         <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8, borderTop: '1px solid rgba(99,102,241,0.2)', paddingTop: 8 }}>
                           Model: {msg.model} | Tokens: {msg.usage?.total_tokens || 'N/A'}
@@ -116,7 +131,7 @@ export default function AICenterPage() {
             )}
           </div>
           <form className="ai-chat-input" onSubmit={handleSendChat}>
-            <input
+            <input data-ai-field={"chatInput"}
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               placeholder="Ask about crypto taxes, regulations, strategies..."
@@ -149,15 +164,35 @@ export default function AICenterPage() {
             ))}
           </div>
           {featureResult && (
-            <AIResponseDisplay
-              content={featureResult.analysis || featureResult.report}
-              model={featureResult.model}
-              usage={featureResult.usage}
+            <AIResultView
+              response={featureResult}
               title={featureResult.title}
+              label="AI analysis"
             />
           )}
         </>
       )}
-    </div>
+
+      {savedResults.length > 0 && (
+        <section className="ai-history" aria-label="Saved AI results">
+          <h2>Saved AI results</h2>
+          <p className="ai-muted">Open a saved response to review the same readable report presentation.</p>
+          {savedResults.slice(0, 10).map((item) => (
+            <button type="button" className="ai-history-row" key={item.id} onClick={() => setSavedResult(item)}>
+              <span><strong>{String(item.feature || 'AI report').replace(/[_-]+/g, ' ')}</strong><br /><small>{new Date(item.createdAt || item.created_at).toLocaleString()}</small></span>
+              <span>Open report →</span>
+            </button>
+          ))}
+          {savedResult && (
+            <AIResultView
+              response={savedResult.ai_results || savedResult.message}
+              title={String(savedResult.feature || 'Saved AI result').replace(/[_-]+/g, ' ')}
+              tokens={savedResult.tokens}
+              label="Saved AI result"
+            />
+          )}
+        </section>
+      )}
+    </div></NativeAIControls>
   );
 }

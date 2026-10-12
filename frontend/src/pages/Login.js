@@ -1,29 +1,50 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { auth } from '../services/api';
 
+const demoEmail = process.env.REACT_APP_DEMO_EMAIL || 'demo@cryptotax.com';
+const demoPassword = process.env.REACT_APP_DEMO_PASSWORD || '';
+const demoLoginAvailable = process.env.REACT_APP_ENABLE_DEMO_CREDENTIAL_AUTOFILL === 'true' && Boolean(demoEmail && demoPassword);
+
 export default function Login({ onLogin }) {
+  const demoLoginLock = useRef(false);
+  const [demoLoginBusy, setDemoLoginBusy] = useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, demoLoginCredentials) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const res = await auth.login({ email, password });
+      const res = await auth.login({ email: demoLoginCredentials?.email ?? email, password: demoLoginCredentials?.password ?? password });
       localStorage.setItem('token', res.data.token);
       onLogin(res.data.user);
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const fillDemo = () => {
-    setEmail(process.env.REACT_APP_DEMO_EMAIL || '');
-    setPassword(process.env.REACT_APP_DEMO_PASSWORD || '');
+  const handleDemoLogin = async (event) => {
+    if (demoLoginLock.current) return;
+    demoLoginLock.current = true;
+    setDemoLoginBusy(true);
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    try {
+      if (!demoLoginAvailable) {
+        setError('Demo credentials are not configured for this local build.');
+        return;
+      }
+      await handleSubmit(event, { email: demoEmail, password: demoPassword });
+    } finally {
+      demoLoginLock.current = false;
+      setDemoLoginBusy(false);
+    }
   };
 
   return (
@@ -51,8 +72,13 @@ export default function Login({ onLogin }) {
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
-            <button type="button" className="demo-btn" onClick={fillDemo}>
-              Auto Fill Demo Credentials
+            <button
+              disabled={loading || demoLoginBusy}
+              type="button"
+              className="demo-btn"
+              onClick={handleDemoLogin}
+            >
+              {demoLoginBusy ? 'Signing in as Demo...' : demoLoginAvailable ? 'Log In as Demo' : 'Fill Demo Credentials'}
             </button>
           </form>
         </div>
