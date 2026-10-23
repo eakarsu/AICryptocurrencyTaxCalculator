@@ -137,8 +137,12 @@ router.get('/', auth, [
     const order = (req.query.sortOrder || 'DESC').toUpperCase();
     const offset = (page - 1) * limit;
 
+    const txWhere = { userId: req.userId };
+    if (req.query.type) txWhere.type = req.query.type;
+    if (req.query.cryptocurrency) txWhere.cryptocurrency = req.query.cryptocurrency;
+    if (req.query.search) { const s = '%' + req.query.search + '%'; txWhere[Op.or] = [{ cryptocurrency: { [Op.iLike]: s } }, { exchange: { [Op.iLike]: s } }, { notes: { [Op.iLike]: s } }]; }
     const { count, rows } = await Transaction.findAndCountAll({
-      where: { userId: req.userId },
+      where: txWhere,
       order: [['date', order]],
       limit,
       offset,

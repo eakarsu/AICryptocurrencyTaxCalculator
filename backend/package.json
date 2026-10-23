@@ -9,7 +9,8 @@
     "seed": "node src/seeds/seed.js",
     "migrate": "sequelize db:migrate",
     "migrate:undo": "sequelize db:migrate:undo",
-    "migrate:status": "sequelize db:migrate:status"
+    "migrate:status": "sequelize db:migrate:status",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

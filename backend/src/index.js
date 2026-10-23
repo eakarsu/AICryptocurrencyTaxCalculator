@@ -91,6 +91,8 @@ app.use('/api/ai', require('./routes/defiAutomation'));
 app.use('/api/ai', require('./routes/liabilityForecast'));
 app.use('/api/ai', require('./routes/taxOptimization'));
 
+app.use('/api/feature-pack32a', require('./routes/featurePack32A')({ sequelize: require('./config/database'), Transaction: require('./models').Transaction, auth: require('./middleware/auth') }));
+
 // === Custom Views (4 new features: 2 VIZ + 2 NON-VIZ) ===
 app.use('/api/custom-views', require('./routes/customViews'));
 app.use('/api/wash-sale-exposure', require('./routes/washSaleExposure'));
